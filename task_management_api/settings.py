@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     
     # Thirtd-party apps
     'rest_framework',
-    'rest_framework.simplejwt',
+    # 'rest_framework_simplejwt' is not an installable app entry; remove incorrect entry
     
     # Local apps
     'users',
