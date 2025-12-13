@@ -38,11 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    # Thirtd-party apps
+   
     'rest_framework',
-    # 'rest_framework_simplejwt' is not an installable app entry; remove incorrect entry
-    
-    # Local apps
+
     'users',
     'tasks',
 ]
