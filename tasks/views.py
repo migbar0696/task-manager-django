@@ -5,12 +5,20 @@ from rest_framework.response import Response
 from django.utils import timezone
 from .models import Task
 from .serializers import TaskSerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 
 
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['status', 'priority', 'category']
+    ordering_fields = ['due_date', 'priority']
+    ordering = ['due_date']
+
+    
     def get_queryset(self):
         # User can only see their own tasks
         return Task.objects.filter(owner=self.request.user)
