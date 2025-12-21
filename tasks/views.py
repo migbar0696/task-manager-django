@@ -33,3 +33,36 @@ class TaskViewSet(viewsets.ModelViewSet):
         task.completed_at = None
         task.save()
         return Response({'status': 'Task marked as incomplete'})
+    
+    
+    @action(detail=True, methods=['post'])
+    def mark_complete(self, request, pk=None):
+        task = self.get_object()
+
+        if task.status == "Completed":
+            return Response(
+                {"detail": "Task already completed"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        task.status = "Completed"
+        task.completed_at = timezone.now()
+        task.save()
+
+        return Response(
+            {"detail": "Task marked as complete"},
+            status=status.HTTP_200_OK
+        )
+
+    @action(detail=True, methods=['post'])
+    def mark_incomplete(self, request, pk=None):
+        task = self.get_object()
+
+        task.status = "Pending"
+        task.completed_at = None
+        task.save()
+
+        return Response(
+            {"detail": "Task marked as incomplete"},
+            status=status.HTTP_200_OK
+        )
