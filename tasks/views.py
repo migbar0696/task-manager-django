@@ -1,5 +1,6 @@
+
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.utils import timezone
@@ -12,9 +13,10 @@ from rest_framework.filters import OrderingFilter
 class TaskViewSet(viewsets.ModelViewSet):
     serializer_class = TaskSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = Task.objects.all()
 
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['status', 'priority', 'category']
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['status', 'priority', 'category__name']
     ordering_fields = ['due_date', 'priority']
     ordering = ['due_date']
 
