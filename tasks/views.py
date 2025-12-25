@@ -8,6 +8,9 @@ from .models import Task
 from .serializers import TaskSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+from .models import Category
+from .serializers import CategorySerializer
+from rest_framework import viewsets, permissions
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -76,3 +79,12 @@ class TaskViewSet(viewsets.ModelViewSet):
             {"detail": "Task marked as incomplete"},
             status=status.HTTP_200_OK
         )
+class CategoryViewSet(viewsets.ModelViewSet):
+    serializer_class = CategorySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Category.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)

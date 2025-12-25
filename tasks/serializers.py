@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Task
+from .models import Task, Category
 from django.utils import timezone
 
 
@@ -15,3 +15,10 @@ class TaskSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Due date must be in the future.")
         return value
 
+
+class CategorySerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')  # only show owner username
+
+    class Meta:
+        model = Category
+        fields = '__all__'
