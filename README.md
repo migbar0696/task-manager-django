@@ -1,148 +1,57 @@
-# Task Management API README
+# Task Management API
 
-# **Task Management API** (BE Capstone Project)
+This README documents the features that are implemented in this repository as of now.
 
-## **Project Overview**
+**Overview**
 
-The Task Management API is a backend application built with **Django** and **Django REST Framework (DRF)**. It allows users to manage their daily tasks by creating, updating, deleting, and marking tasks as complete or incomplete. The API ensures each user can only access their own tasks, simulating real-world backend development with secure authentication, database management, and RESTful API design.
+This backend API is built with Django and Django REST Framework. It provides authenticated task management for users: creating, reading, updating, deleting, and marking tasks completed or incomplete. Authentication uses JWT tokens.
 
-**Originality Enhancements:**
-To make this project unique and go beyond the standard requirements, we added the following features:
+**Implemented Features**
 
-1. **Task Categories** – Users can create categories (e.g., Work, Personal) and assign tasks to them.
-2. **Recurring Tasks** – Users can create recurring tasks (Daily/Weekly/Monthly) that regenerate automatically after completion.
-3. **Priority Sorting & Status Filtering** – Tasks can be filtered and sorted by priority, due date, status, and category.
-4. **Task History Log** – Keep a record of completed tasks for reference.
-5. **Task Collaboration** – Users can share a task with other users, giving them permission to view or edit it.
+- **Tasks — CRUD:** Create, retrieve, update, and delete tasks via the `TaskViewSet` at `/api/tasks/`.
+- **Task attributes:** `title`, `description`, `due_date`, `priority` (Low/Medium/High), `status` (Pending/Completed), `recurring` (field present), `completed_at`, `owner`, and optional `category` (model present).
+- **Ownership:** Tasks are owned by a user; users only see their own tasks. New tasks are saved with the requesting user as `owner`.
+- **Mark complete/incomplete:** Custom actions `mark_complete` and `mark_incomplete` exist on the task viewset to mark tasks completed or pending.
+- **Filters & ordering:** Basic filtering by `status`, `priority`, and `category__name` and ordering by `due_date` and `priority` are enabled.
+- **Validations:** `due_date` is validated to be in the future in the task serializer.
+- **Authentication:** JWT authentication configured. Token endpoints are available at `/api/token/` and `/api/token/refresh/`.
 
----
+**API Endpoints (implemented)**
 
-## **Functional Requirements**
+- `POST /api/token/` — Obtain JWT access and refresh tokens.
+- `POST /api/token/refresh/` — Refresh JWT access token.
+- `GET /api/tasks/` — List tasks for the authenticated user (supports filtering and ordering).
+- `POST /api/tasks/` — Create a new task (owner set to authenticated user).
+- `GET /api/tasks/{id}/` — Retrieve a specific task (must be owner).
+- `PUT/PATCH /api/tasks/{id}/` — Update a task (no special block on completed tasks currently).
+- `DELETE /api/tasks/{id}/` — Delete a task.
+- `POST /api/tasks/{id}/mark_complete/` — Mark task as completed (sets `completed_at`).
+- `POST /api/tasks/{id}/mark_incomplete/` — Mark task as pending (clears `completed_at`).
 
-### **Tasks**
+**Notable implementation details**
 
-* **CRUD operations:** Create, Read, Update, Delete tasks
-* **Attributes:**
+- `Category` model exists and is linked to `Task`, but there are no dedicated category API endpoints implemented yet.
+- The `recurring` field exists on `Task`, but automatic regeneration logic is not implemented here.
 
-  * `title` (string)
-  * `description` (string)
-  * `due_date` (datetime)
-  * `priority` (Low, Medium, High)
-  * `status` (Pending, Completed)
-  * `category` (optional, e.g., Work, Personal)
-  * `recurring` (optional, Daily/Weekly/Monthly)
-  * `completed_at` (datetime, automatically set when marked complete)
-* **Mark as Complete/Incomplete:** Custom endpoint to toggle task status
-* **Filters & Sorting:** Filter by status, priority, due_date, category; sort by priority or due_date
-* **Ownership & Permissions:** Users can only access and edit their own tasks; shared tasks can be edited by collaborators
-
-### **Users**
-
-* **CRUD operations:** Register, Read profile, Update profile, Delete account
-* **Attributes:**
-
-  * `username` (unique)
-  * `email` (unique)
-  * `password` (hashed)
-* **Authentication:** Token-based JWT authentication to secure endpoints
-
----
-
-## **API Endpoints**
-
-| Endpoint                    | Method    | Description                                                   |
-| --------------------------- | --------- | ------------------------------------------------------------- |
-| `/api/users/register/`      | POST      | Register new user                                             |
-| `/api/users/login/`         | POST      | Obtain authentication token                                   |
-| `/api/users/me/`            | GET       | Get current user profile                                      |
-| `/api/tasks/`               | GET       | List all tasks of the logged-in user (with filters & sorting) |
-| `/api/tasks/`               | POST      | Create a new task                                             |
-| `/api/tasks/<id>/`          | GET       | Retrieve task details                                         |
-| `/api/tasks/<id>/`          | PUT/PATCH | Update a task (cannot update completed tasks unless reverted) |
-| `/api/tasks/<id>/`          | DELETE    | Delete a task                                                 |
-| `/api/tasks/<id>/complete/` | POST      | Mark task as complete/incomplete                              |
-| `/api/tasks/<id>/share/`    | POST      | Share task with other users (original feature)                |
-
----
-
-## **Technical Requirements**
-
-* **Framework:** Django, Django REST Framework
-* **Database:** SQLite (development), Postgres (for production)
-* **Authentication:** JWT (via `djangorestframework-simplejwt`)
-* **Deployment:** Heroku or PythonAnywhere
-* **Validations:**
-
-  * Due date must be in the future
-  * Priority must be Low, Medium, or High
-  * Completed tasks cannot be edited unless reverted
-
----
-
-## **Stretch Goals / Original Features**
-
-1. **Recurring Tasks:** Automatically regenerate tasks based on recurrence.
-2. **Task Categories:** Organize tasks by category.
-3. **Task History Log:** Track completed tasks with timestamps.
-4. **Collaborative Tasks:** Share tasks with other users.
-5. **Enhanced Filtering:** Filter tasks by status, priority, due date, and category.
-
----
-
-## **Getting Started**
-
-### **Clone the Repository**
-
-```bash
-git clone <your-repo-url>
-cd task_management_api
-```
-
-### **Create a Virtual Environment**
+**Getting started (development)**
 
 ```bash
 python -m venv venv
-source venv/bin/activate  # Linux/macOS
-venv\Scripts\activate     # Windows
-```
-
-### **Install Dependencies**
-
-```bash
+venv\Scripts\activate   # Windows
 pip install -r requirements.txt
-```
-
-### **Run Migrations**
-
-```bash
 python manage.py makemigrations
 python manage.py migrate
-```
-
-### **Create a Superuser**
-
-```bash
 python manage.py createsuperuser
-```
-
-### **Run the Server**
-
-```bash
 python manage.py runserver
 ```
 
-The API will be available at `http://127.0.0.1:8000/api/`
+The API base path is `http://127.0.0.1:8000/api/`.
+
+**Notes**
+
+- JWT token endpoints are in the project URLs (`/api/token/` and `/api/token/refresh/`).
+- Authorization is required for all task endpoints; include the `Authorization: Bearer <access_token>` header.
 
 ---
 
-## **Deployment**
-
-* Prepare `requirements.txt`, `Procfile`, and `runtime.txt` for Heroku
-* Push to GitHub and deploy on Heroku or PythonAnywhere
-* Test all endpoints after deployment
-
----
-
-## **Conclusion**
-
-This Task Management API project provides a realistic backend development experience. It is fully RESTful, secure, and scalable. With original enhancements like task collaboration, recurring tasks, and history tracking, it stands out as a professional-grade project suitable for a capstone submission.
+This README reflects only the features implemented in the codebase now.
